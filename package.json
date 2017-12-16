@@ -2,13 +2,16 @@
 	"name": "httpsrv",
 	"version": "0.0.1",
 	"description": "",
-	"main": "index.js",
+	"main": "./index.js",
 	"engines": {
 		"node": ">=7.10.1"
 	},
+	"bin": {
+		"httpsrv": "./index.js"
+	},
 	"keywords": [],
 	"author": "",
-	"license": "ISC",
+	"license": "MIT",
 	"dependencies": {
 		"bluebird": "^3.5.1",
 		"express": "^4.16.2",
