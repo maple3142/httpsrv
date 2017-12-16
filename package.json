@@ -1,6 +1,6 @@
 {
 	"name": "httpsrv",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "",
 	"main": "./index.js",
 	"engines": {
@@ -15,10 +15,16 @@
 	"dependencies": {
 		"bluebird": "^3.5.1",
 		"express": "^4.16.2",
-		"mime": "^2.0.3"
+		"mime": "^2.0.3",
+		"yargs": "^10.0.3"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/maple3142/httpsrv.git"
+	},
+	"devDependencies": {
+		"axios": "^0.17.1",
+		"chai": "^4.1.2",
+		"mocha": "^4.0.1"
 	}
 }
