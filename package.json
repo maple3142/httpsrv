@@ -1,13 +1,13 @@
 {
 	"name": "httpsrv",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"description": "",
 	"main": "./index.js",
 	"engines": {
 		"node": ">=7.10.1"
 	},
 	"bin": {
-		"httpsrv": "./index.js"
+		"httpsrv": "./cli.js"
 	},
 	"keywords": [],
 	"author": "",

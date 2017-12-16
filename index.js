@@ -3,38 +3,42 @@ const fs = require('fs')
 const path = require('path')
 const mime = require('mime')
 const { Promise } = require('bluebird')
-global.Promise=Promise
+global.Promise = Promise
 const pfs = Promise.promisifyAll(fs)
 
-const [basedir, port = 3333] = process.argv.slice(2)
-if (!basedir) console.log('fileserver <basedir> [port=3333]'), process.exit()
+function createServer({ basedir, port, log, cors }) {
+	return new Promise((res, rej) => {
+		const app = express()
+		//logger & cors
+		app.use((req, res, next) => {
+			if (log) console.log(`${req.method} ${req.path}`)
+			if (cors) res.set('Access-Control-Allow-Origin', cors)
+			next()
+		})
+		app.get('*', async (req, res) => {
+			const file = path.join(process.cwd(), basedir, req.path)
 
-const app = express()
-app.use((req, res, next) => {
-	console.log(`${req.method} ${req.path}`)
-	next()
-})
-app.get('*', async (req, res) => {
-	const file = path.join(process.cwd(), basedir, req.path)
+			try {
+				let stat = await pfs.statAsync(file)
+				if (!stat.isFile()) { //file not found
+					if (stat.isDirectory()) res.send(renderDirectory(await pfs.readdirAsync(file), req.path)) //if is directory, display it
+					else res.status(404).send('404 NOT FOUND')
+				}
+				else { //file found
+					res.set('Content-Type', mime.getType(req.path))
+					pfs.createReadStream(file).pipe(res)
+				}
+			}
+			catch (err) {
+				if (err.code === 'ENOENT') res.status(404).send('404 NOT FOUND')
+				else res.status(500).send('500 SERVER ERROR')
+			}
+		})
+		app.listen(port, _ => res()) //listen on trigger callback
 
-	try {
-		let stat = await pfs.statAsync(file)
-		if (!stat.isFile()) {
-			if (stat.isDirectory()) res.send(renderList(await pfs.readdirAsync(file),req.path))
-			else res.status(404).send('404 NOT FOUND')
+		function renderDirectory(list, curpath) { //directory renderer
+			return `<h1>${curpath}</h1>` + list.map(file => `<a href="${path.join(curpath, file)}">${file}</a>`).join('<br>')
 		}
-		else {
-			res.set('Content-Type',mime.getType(req.path))
-			fs.createReadStream(file).pipe(res)
-		}
-	}
-	catch (err) {
-		if (err.code === 'ENOENT') res.status(404).send('404 NOT FOUND')
-		else res.status(500).send('500 SERVER ERROR')
-	}
-})
-app.listen(port, _ => console.log(`listen on *:${port}`))
-
-function renderList(list,curpath) {
-	return '<h1>Directory</h1>'+list.map(file => `<a href="${path.join(curpath,file)}">${file}</a>`).join('<br>')
+	})
 }
+module.exports = createServer
