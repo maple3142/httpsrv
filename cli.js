@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 const createServer = require('./index')
 const { _: [basedir], port, log, cors, fallback, indexhtml } = require('yargs')
-	.usage('Usage: $0 <basedir>')
-	.example('$0 . -p 8888', 'Start server on port 8888')
+	.usage('Usage: httpsrv <basedir>')
+	.example('httpsrv . -p 8888', 'Start server on port 8888')
 	.demandCommand(1)
 	.options('port', {
 		alias: 'p',

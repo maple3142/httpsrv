@@ -10,7 +10,7 @@ then open [localhost:3333](localhost:3333)
 
 ## Options
 ```
-Usage: cli.js <basedir>
+Usage: httpsrv <basedir>
 
 Options:
   --help           Show help                                           [boolean]
@@ -22,7 +22,7 @@ Options:
   --indexhtml, -i  Try to show index.html if exists                    [boolean]
 
 Examples:
-  cli.js . -p 8888  Start server on port 8888
+  httpsrv . -p 8888  Start server on port 8888
 ```
 
 ## API (cli.js)
