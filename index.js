@@ -11,17 +11,17 @@ function createServer({ basedir, port, log, cors }) {
 		const app = express()
 		//logger & cors
 		app.use((req, res, next) => {
-			if (log) console.log(`${req.method} ${req.path}`)
+			if (log) console.log(`${req.method} ${decodeURIComponent(req.path)}`)
 			if (cors) res.set('Access-Control-Allow-Origin', cors)
 			next()
 		})
 		app.get('*', async (req, res) => {
-			const file = path.join(process.cwd(), basedir, req.path)
+			const file = path.join(process.cwd(), basedir, decodeURIComponent(req.path))
 
 			try {
-				let stat = await pfs.statAsync(file)
+				const stat = await pfs.statAsync(file)
 				if (!stat.isFile()) { //file not found
-					if (stat.isDirectory()) res.send(renderDirectory(await pfs.readdirAsync(file), req.path)) //if is directory, display it
+					if (stat.isDirectory()) res.set('Content-Type','text/html').send(renderDirectory(await pfs.readdirAsync(file), req.path)) //if is directory, display it
 					else res.status(404).send('404 NOT FOUND')
 				}
 				else { //file found
@@ -34,7 +34,7 @@ function createServer({ basedir, port, log, cors }) {
 				else res.status(500).send('500 SERVER ERROR')
 			}
 		})
-		app.listen(port, _ => res()) //listen on trigger callback
+		app.listen(port, _ => res(app)) //listen on trigger callback
 
 		function renderDirectory(list, curpath) { //directory renderer
 			return `<h1>${curpath}</h1>` + list.map(file => `<a href="${path.join(curpath, file)}">${file}</a>`).join('<br>')

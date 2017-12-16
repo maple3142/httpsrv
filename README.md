@@ -16,10 +16,11 @@ httpsrv <basedir> [port=3333]
 ## API
 ```javascript
 const httpsrv=require('httpsrv')
-httpsrv({
+const p=httpsrv({
 	basedir: '.', //a relative path with process.cwd() (required)
 	port: 3333, //port (required)
 	log: true, //enable log (default=false)
 	cors: true //enable Access-Control-Allow-Origin (default='')
-}).then(_=>console.log('server started!')) //return a bluebird Promise, triggered when listen successful
+}) //return a bluebird Promise, triggered when listen successful
+p.then(app=>console.log('server started!')) //"app" in an express app
 ```
