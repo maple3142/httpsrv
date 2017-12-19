@@ -13,13 +13,16 @@ then open [localhost:3333](localhost:3333)
 Usage: httpsrv <basedir>
 
 Options:
-  --help           Show help                                           [boolean]
-  --version        Show version number                                 [boolean]
-  --port, -p       Port to listen                       [number] [default: 3333]
-  --log, -l        Enable logger                                       [boolean]
-  --cors, -c       Access-Control-Allow-Origin header                   [string]
-  --fallback, -f   A file will be send when 404, useful in SPA          [string]
-  --indexhtml, -i  Try to show index.html if exists                    [boolean]
+  --help              Show help                                        [boolean]
+  --version           Show version number                              [boolean]
+  --port, -p          Port to listen                    [number] [default: 3333]
+  --log, -l           Enable logger                                    [boolean]
+  --indexhtml, -i     Try to show index.html if exists                 [boolean]
+  --instantclick, -x  disable instantclick.js in directory page
+                                                       [boolean] [default: true]
+  --cors, -c          Access-Control-Allow-Origin header                [string]
+  --fallback, -f      A file will be send when 404, useful in SPA (will disable
+                      directory listing page)                           [string]
 
 Examples:
   httpsrv . -p 8888  Start server on port 8888
@@ -33,6 +36,6 @@ const { _: [basedir], port, log, cors, fallback, indexhtml } = require('yargs')
   .usage('Usage: $0 <basedir>') //many things....
 
 //options same as cli options, return an express app
-const app=createServer({ basedir, log, cors, fallback, indexhtml })
+const app=createServer({ basedir, log, cors, fallback, indexhtml , instantclick })
 app.listen(port, _ => console.log(`listen on *:${port}`))
 ```

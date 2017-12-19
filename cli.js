@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const createServer = require('./index')
-const { _: [basedir], port, log, cors, fallback, indexhtml } = require('yargs')
+const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick } = require('yargs')
 	.usage('Usage: httpsrv <basedir>')
 	.example('httpsrv . -p 8888', 'Start server on port 8888')
 	.demandCommand(1)
@@ -15,6 +15,17 @@ const { _: [basedir], port, log, cors, fallback, indexhtml } = require('yargs')
 		type: 'boolean',
 		describe: 'Enable logger'
 	})
+	.option('indexhtml', {
+		alias: 'i',
+		type: 'boolean',
+		describe: 'Try to show index.html if exists'
+	})
+	.option('instantclick', {
+		alias: 'x',
+		type: 'boolean',
+		default: true,
+		describe: 'disable instantclick.js in directory page'
+	})
 	.options('cors', {
 		alias: 'c',
 		type: 'string',
@@ -23,12 +34,8 @@ const { _: [basedir], port, log, cors, fallback, indexhtml } = require('yargs')
 	.option('fallback', {
 		alias: 'f',
 		type: 'string',
-		describe: 'A file will be send when 404, useful in SPA'
+		describe: 'A file will be send when 404, useful in SPA (will disable directory listing page)'
 	})
-	.option('indexhtml', {
-		alias: 'i',
-		type: 'boolean',
-		describe: 'Try to show index.html if exists'
-	}).argv
+	.argv
 
-createServer({ basedir, log, cors, fallback, indexhtml }).listen(port, _ => console.log(`listen on *:${port}`))
+createServer({ basedir, log, cors, fallback, indexhtml, instantclick }).listen(port, _ => console.log(`listen on *:${port}`))

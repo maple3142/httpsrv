@@ -6,7 +6,7 @@ const { Promise } = require('bluebird')
 global.Promise = Promise
 const pfs = Promise.promisifyAll(fs)
 
-function createServer({ basedir, log, cors, fallback, indexhtml }) {
+function createServer({ basedir, log, cors, fallback, indexhtml,instantclick }) {
 	const fallbackfile = path.join(process.cwd(), basedir, decodeURIComponent(fallback))
 	const app = express()
 	//logger & cors
@@ -40,7 +40,18 @@ function createServer({ basedir, log, cors, fallback, indexhtml }) {
 			const stat = await pfs.statAsync(file)
 			if (!stat.isFile()) { //file not found
 				if (fallback) pfs.createReadStream(fallbackfile).pipe(res) //if fallback exists, send it instead
-				else if (stat.isDirectory()) res.set('Content-Type', 'text/html').send(renderDirectory(await pfs.readdirAsync(file), req.path)) //if is directory, display it
+				else if (stat.isDirectory()) { //if is directory, display it
+					const filelist = await pfs.readdirAsync(file)
+					const statlist = await Promise.all(filelist.map(f => pfs.statAsync(path.join(file, f))))
+					let list = []
+					for (let i = 0; i < filelist.length; i++) {
+						list.push({
+							name: filelist[i],
+							stat: statlist[i]
+						})
+					}
+					res.set('Content-Type', 'text/html').send(renderDirectory(list, req.path))
+				}
 				else res.status(404).send('404 NOT FOUND')
 			}
 			else { //file found
@@ -56,7 +67,10 @@ function createServer({ basedir, log, cors, fallback, indexhtml }) {
 	})
 
 	function renderDirectory(list, curpath) { //directory renderer
-		return `<h1>${curpath}</h1>` + list.map(file => `<a href="${path.join(curpath, file)}">${file}</a>`).join('<br>')
+		return `<h1>${curpath}</h1>`
+			+ `<a href="${path.join(curpath,'../')}">../</a><br>`
+			+ list.sort(file=>file.stat.isFile()).map(file => `<a href="${path.join(curpath, file.name)}" ${file.stat.isFile() ? 'target="_blank"' : ''}>${file.name} ${file.stat.isDirectory() ? '<small>&#128193;</small>' : ''}</a>`).join('<br>')
+			+ (instantclick?'<script src="https://cdnjs.cloudflare.com/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script><script data-no-instant>InstantClick.init()</script>':'')
 	}
 
 	return app
