@@ -6,7 +6,7 @@ const { Promise } = require('bluebird')
 global.Promise = Promise
 const pfs = Promise.promisifyAll(fs)
 
-function createServer({ basedir, log, cors, fallback, indexhtml,instantclick }) {
+function createServer({ basedir, log, cors, fallback, indexhtml, instantclick }) {
 	const fallbackfile = path.join(process.cwd(), basedir, decodeURIComponent(fallback))
 	const app = express()
 	//logger & cors
@@ -56,6 +56,7 @@ function createServer({ basedir, log, cors, fallback, indexhtml,instantclick }) 
 			}
 			else { //file found
 				res.set('Content-Type', mime.getType(req.path))
+				res.set('Content-Length', stat.size)
 				pfs.createReadStream(file).pipe(res)
 			}
 		}
@@ -68,9 +69,9 @@ function createServer({ basedir, log, cors, fallback, indexhtml,instantclick }) 
 
 	function renderDirectory(list, curpath) { //directory renderer
 		return `<h1>${curpath}</h1>`
-			+ `<a href="${path.join(curpath,'../')}">../</a><br>`
-			+ list.sort(file=>file.stat.isFile()).map(file => `<a href="${path.join(curpath, file.name)}" ${file.stat.isFile() ? 'target="_blank"' : ''}>${file.name} ${file.stat.isDirectory() ? '<small>&#128193;</small>' : ''}</a>`).join('<br>')
-			+ (instantclick?'<script src="https://cdnjs.cloudflare.com/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script><script data-no-instant>InstantClick.init()</script>':'')
+			+ `<a href="${path.join(curpath, '../')}">../</a><br>`
+			+ list.sort(file => file.stat.isFile()).map(file => `<a href="${path.join(curpath, file.name)}" ${file.stat.isFile() ? 'target="_blank"' : ''}>${file.name} ${file.stat.isDirectory() ? '<small>&#128193;</small>' : ''}</a>`).join('<br>')
+			+ (instantclick ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script><script data-no-instant>InstantClick.init()</script>' : '')
 	}
 
 	return app
