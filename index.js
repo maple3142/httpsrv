@@ -19,7 +19,7 @@ function createServer({ basedir, log, cors, fallback, indexhtml, instantclick })
 		if (!indexhtml) next()
 		else {
 			try {
-				const file = path.join(process.cwd(), basedir, decodeURIComponent(req.path))
+				const file = path.join( basedir, decodeURIComponent(req.path))
 				const stat = await pfs.statAsync(file)
 				if (stat.isDirectory()) { //if current path is directory
 					const file2 = path.join(process.cwd(), basedir, path.join(decodeURIComponent(req.path), 'index.html'))
@@ -34,7 +34,7 @@ function createServer({ basedir, log, cors, fallback, indexhtml, instantclick })
 		}
 	})
 	app.get('*', async (req, res) => {
-		const file = path.join(process.cwd(), basedir, decodeURIComponent(req.path))
+		const file = path.join(basedir, decodeURIComponent(req.path))
 
 		try {
 			const stat = await pfs.statAsync(file)

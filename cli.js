@@ -37,5 +37,5 @@ const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick } = req
 		describe: 'A file will be send when 404, useful in SPA (will disable directory listing page)'
 	})
 	.argv
-
-createServer({ basedir, log, cors, fallback, indexhtml, instantclick }).listen(port, _ => console.log(`listen on *:${port}`))
+const path = require('path')
+createServer({ basedir: path.isAbsolute(basedir) ? basedir : path.join(process.cwd(), basedir), log, cors, fallback, indexhtml, instantclick }).listen(port, _ => console.log(`listen on *:${port}`))
