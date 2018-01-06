@@ -19,12 +19,16 @@ function createServer({ basedir, log, cors, fallback, indexhtml, instantclick })
 		if (!indexhtml) next()
 		else {
 			try {
-				const file = path.join( basedir, decodeURIComponent(req.path))
+				const file = path.join(basedir, decodeURIComponent(req.path))
 				const stat = await pfs.statAsync(file)
 				if (stat.isDirectory()) { //if current path is directory
 					const file2 = path.join(process.cwd(), basedir, path.join(decodeURIComponent(req.path), 'index.html'))
 					const stat2 = await pfs.statAsync(file2) //try to detect index.html under current path
-					if (stat2.isFile()) pfs.createReadStream(file2).pipe(res)
+					if (stat2.isFile()) {
+						res.set('Content-Type', 'text/html')
+						res.set('Content-Length', stat.size)
+						pfs.createReadStream(file2).pipe(res)
+					}
 				}
 				else next()
 			}
