@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 const createServer = require('./index')
-const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick } = require('yargs')
+const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick, upload } = require('yargs')
 	.usage('Usage: httpsrv <basedir>')
 	.example('httpsrv . -p 8888', 'Start server on port 8888')
 	.demandCommand(1)
-	.options('port', {
+	.option('port', {
 		alias: 'p',
 		default: 3333,
 		type: 'number',
 		describe: 'Port to listen'
 	})
-	.options('log', {
+	.option('log', {
 		alias: 'l',
 		type: 'boolean',
 		describe: 'Enable logger'
@@ -20,13 +20,19 @@ const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick } = req
 		type: 'boolean',
 		describe: 'Try to show index.html if exists'
 	})
+	.option('upload', {
+		alias: 'u',
+		type: 'boolean',
+		default: false,
+		describe: 'enable fileupload in directory page'
+	})
 	.option('instantclick', {
 		alias: 'x',
 		type: 'boolean',
 		default: true,
 		describe: 'disable instantclick.js in directory page'
 	})
-	.options('cors', {
+	.option('cors', {
 		alias: 'c',
 		type: 'string',
 		describe: 'Access-Control-Allow-Origin header'
@@ -38,4 +44,4 @@ const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick } = req
 	})
 	.argv
 const path = require('path')
-createServer({ basedir: path.isAbsolute(basedir) ? basedir : path.join(process.cwd(), basedir), log, cors, fallback, indexhtml, instantclick }).listen(port, _ => console.log(`listen on *:${port}`))
+createServer({ basedir: path.isAbsolute(basedir) ? basedir : path.join(process.cwd(), basedir), log, cors, fallback, indexhtml, instantclick, upload }).listen(port, _ => console.log(`listen on *:${port}`))

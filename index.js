@@ -1,21 +1,36 @@
 const express = require('express')
+const multer = require('multer')
 const fs = require('fs')
 const path = require('path')
 const mime = require('mime')
+const mkdirp = require('mkdirp')
 const { Promise } = require('bluebird')
 global.Promise = Promise
 const pfs = Promise.promisifyAll(fs)
 
-function createServer({ basedir, log, cors, fallback, indexhtml, instantclick }) {
+function createServer({ basedir, log, cors, fallback, indexhtml, instantclick, upload }) {
 	const fallbackfile = path.join(process.cwd(), basedir, decodeURIComponent(fallback))
 	const app = express()
+	const storage = multer.diskStorage({
+		destination(req, file, cb) {
+			mkdirp(path.resolve(path.join(process.cwd(), req.url)), err => {
+				if (err) throw err
+				else cb(null, path.resolve(path.join(process.cwd(), req.url)))
+			})
+		},
+		filename(req, file, cb) {
+			cb(null, file.originalname)
+		}
+	})
+	const mu = multer({ storage })
+
 	//logger & cors
 	app.use((req, res, next) => {
 		if (log) console.log(`${req.method} ${decodeURIComponent(req.path)}`)
 		if (cors) res.set('Access-Control-Allow-Origin', cors)
 		next()
 	})
-	app.use(async (req, res, next) => { //serve index.html if needed && possible
+	app.get(async (req, res, next) => { //serve index.html if needed && possible
 		if (!indexhtml) next()
 		else {
 			try {
@@ -37,7 +52,9 @@ function createServer({ basedir, log, cors, fallback, indexhtml, instantclick })
 			}
 		}
 	})
-	app.get('*', async (req, res) => {
+	app.get('*', showDirectory)
+	if (upload) app.post('*', mu.single('file'), showDirectory)
+	async function showDirectory(req, res) {
 		const file = path.join(basedir, decodeURIComponent(req.path))
 
 		try {
@@ -69,10 +86,17 @@ function createServer({ basedir, log, cors, fallback, indexhtml, instantclick })
 			else if (err.code === 'ENOENT') res.status(404).send('404 NOT FOUND') //file not found
 			else res.status(500).send('500 SERVER ERROR')
 		}
-	})
+	}
 
 	function renderDirectory(list, curpath) { //directory renderer
 		return `<h1>${curpath}</h1>`
+			+ (upload ? `
+			<form method="post" action="${curpath}" enctype="multipart/form-data">
+				<label for="file">Upload:</label>
+				<input name="file" type="file" id="file">
+				<input name="upload" value="upload" type="submit">
+			</form>
+			`: '')
 			+ `<a href="${path.join(curpath, '../')}">../</a><br>`
 			+ list.sort(file => file.stat.isFile()).map(file => `<a href="${path.join(curpath, file.name)}" ${file.stat.isFile() ? 'target="_blank"' : ''}>${file.name} ${file.stat.isDirectory() ? '<small>&#128193;</small>' : ''}</a>`).join('<br>')
 			+ (instantclick ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/instantclick/3.0.1/instantclick.min.js" data-no-instant></script><script data-no-instant>InstantClick.init()</script>' : '')
