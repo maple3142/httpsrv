@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const createServer = require('./index')
-const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick, upload } = require('yargs')
+const { _: [basedir], port, log, cors, fallback, indexhtml, noinstantclick, upload } = require('yargs')
 	.usage('Usage: httpsrv <basedir>')
 	.example('httpsrv . -p 8888', 'Start server on port 8888')
 	.demandCommand(1)
@@ -26,10 +26,10 @@ const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick, upload
 		default: false,
 		describe: 'enable fileupload in directory page'
 	})
-	.option('instantclick', {
+	.option('noinstantclick', {
 		alias: 'x',
 		type: 'boolean',
-		default: true,
+		default: false,
 		describe: 'disable instantclick.js in directory page'
 	})
 	.option('cors', {
@@ -44,4 +44,4 @@ const { _: [basedir], port, log, cors, fallback, indexhtml, instantclick, upload
 	})
 	.argv
 const path = require('path')
-createServer({ basedir: path.isAbsolute(basedir) ? basedir : path.join(process.cwd(), basedir), log, cors, fallback, indexhtml, instantclick, upload }).listen(port, _ => console.log(`listen on *:${port}`))
+createServer({ basedir: path.isAbsolute(basedir) ? basedir : path.join(process.cwd(), basedir), log, cors, fallback, indexhtml, instantclick: !noinstantclick, upload }).listen(port, _ => console.log(`listen on *:${port}`))
