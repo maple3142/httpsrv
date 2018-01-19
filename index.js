@@ -1,5 +1,6 @@
 const express = require('express')
 const multer = require('multer')
+const bauth = require('basic-auth')
 const fs = require('fs')
 const path = require('path')
 const mime = require('mime')
@@ -8,7 +9,7 @@ const { Promise } = require('bluebird')
 global.Promise = Promise
 const pfs = Promise.promisifyAll(fs)
 
-function createServer({ basedir, log, cors, fallback, indexhtml, instantclick, upload }) {
+function createServer({ basedir, log, cors, fallback, indexhtml, instantclick, upload, auth }) {
 	const fallbackfile = path.join(process.cwd(), basedir, decodeURIComponent(fallback))
 	const app = express()
 	app.set('view engine', 'pug')
@@ -24,6 +25,22 @@ function createServer({ basedir, log, cors, fallback, indexhtml, instantclick, u
 		}
 	})
 	const mu = multer({ storage })
+
+	if (auth) {
+		const [username, password] = auth.split(':')
+		if (!username || !password) {
+			throw new Error('Please provide a correct auth string "username:password"')
+		}
+		app.use((req, res, next) => {
+			const cdt = bauth(req)
+			if (cdt && cdt.name === username && cdt.pass === password) next()
+			else {
+				res.set('WWW-Authenticate', 'Basic realm="httpsrv authentication"')
+					.status(401)
+					.send('Access denied')
+			}
+		})
+	}
 
 	//logger & cors
 	app.use((req, res, next) => {
