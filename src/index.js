@@ -1,15 +1,15 @@
-const express = require('express')
-const multer = require('multer')
-const bauth = require('basic-auth')
-const fs = require('fs')
-const path = require('path')
-const mime = require('mime')
-const mkdirp = require('mkdirp')
+import express from 'express'
+import multer from 'multer'
+import bauth from 'basic-auth'
+import fs from 'fs'
+import path from 'path'
+import mime from 'mime'
+import mkdirp from 'mkdirp'
 const { Promise } = require('bluebird')
 global.Promise = Promise
 const pfs = Promise.promisifyAll(fs)
 
-function createServer({
+export function createServer({
 	basedir,
 	log,
 	cors,
@@ -26,7 +26,7 @@ function createServer({
 	)
 	const app = express()
 	app.set('view engine', 'pug')
-	app.set('views', path.join(__dirname, '/views'))
+	app.set('views', path.join(__dirname, '../views'))
 	const storage = multer.diskStorage({
 		destination(req, file, cb) {
 			const dest = path.resolve(path.join(basedir, req.url))
@@ -146,4 +146,3 @@ function createServer({
 
 	return app
 }
-module.exports = createServer

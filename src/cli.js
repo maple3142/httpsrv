@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-const createServer = require('./index')
+import { createServer } from './index'
+import yargs from 'yargs'
 const {
 	_: [basedir],
 	port,
@@ -10,7 +11,7 @@ const {
 	noinstantclick,
 	upload,
 	auth
-} = require('yargs')
+} = yargs
 	.usage('Usage: httpsrv <basedir>')
 	.example('httpsrv . -p 8888', 'Start server on port 8888')
 	.demandCommand(1)
