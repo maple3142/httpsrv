@@ -20,7 +20,6 @@ export function createServer({
 	auth
 }) {
 	const fallbackfile = path.join(
-		process.cwd(),
 		basedir,
 		decodeURIComponent(fallback)
 	)
