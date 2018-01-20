@@ -58,6 +58,7 @@ const {
 		type: 'string',
 		describe: 'Http basic auth, format: username:password'
 	}).argv
+
 const path = require('path')
 createServer({
 	basedir: path.isAbsolute(basedir)
@@ -70,4 +71,4 @@ createServer({
 	instantclick: !noinstantclick,
 	upload,
 	auth
-}).listen(port, _ => console.log(`listen on *:${port}`))
+}).listen(port, _ => console.log(`listen on http://localhost:${port}`))

@@ -29,9 +29,10 @@ function createServer({
 	app.set('views', path.join(__dirname, '/views'))
 	const storage = multer.diskStorage({
 		destination(req, file, cb) {
-			mkdirp(path.resolve(path.join(process.cwd(), req.url)), err => {
+			const dest = path.resolve(path.join(basedir, req.url))
+			mkdirp(dest, err => {
 				if (err) throw err
-				else cb(null, path.resolve(path.join(process.cwd(), req.url)))
+				else cb(null, dest)
 			})
 		},
 		filename(req, file, cb) {
@@ -63,15 +64,17 @@ function createServer({
 	}
 
 	//logger & cors
-	app.use((req, res, next) => {
-		if (log) console.log(`${req.method} ${decodeURIComponent(req.path)}`)
-		if (cors) res.set('Access-Control-Allow-Origin', cors)
-		next()
-	})
-	app.get(async (req, res, next) => {
-		//serve index.html if needed && possible
-		if (!indexhtml) next()
-		else {
+	if (log || cors) {
+		app.use((req, res, next) => {
+			if (log)
+				console.log(`${req.method} ${decodeURIComponent(req.path)}`)
+			if (cors) res.set('Access-Control-Allow-Origin', cors)
+			next()
+		})
+	}
+	if (indexhtml) {
+		app.get('*', async (req, res, next) => {
+			//serve index.html if exists
 			try {
 				const file = path.join(basedir, decodeURIComponent(req.path))
 				const stat = await pfs.statAsync(file)
@@ -87,13 +90,13 @@ function createServer({
 						res.set('Content-Type', 'text/html')
 						res.set('Content-Length', stat2.size)
 						pfs.createReadStream(file2).pipe(res)
-					}
+					} else next()
 				} else next()
 			} catch (err) {
 				next()
 			}
-		}
-	})
+		})
+	}
 	app.get('*', showDirectory)
 	if (upload) app.post('*', mu.single('file'), showDirectory)
 	async function showDirectory(req, res) {
