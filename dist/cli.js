@@ -20,6 +20,10 @@ var _yargs$usage$example$ = _yargs2.default.usage('Usage: httpsrv <basedir>').ex
 	alias: 'l',
 	type: 'boolean',
 	describe: 'Enable logger'
+}).option('showdotfile', {
+	alias: 'd',
+	type: 'boolean',
+	describe: 'Show files starts with dot in directory page.'
 }).option('indexhtml', {
 	alias: 'i',
 	type: 'boolean',
@@ -51,6 +55,7 @@ var _yargs$usage$example$ = _yargs2.default.usage('Usage: httpsrv <basedir>').ex
     basedir = _yargs$usage$example$2[0],
     port = _yargs$usage$example$.port,
     log = _yargs$usage$example$.log,
+    showdotfile = _yargs$usage$example$.showdotfile,
     cors = _yargs$usage$example$.cors,
     fallback = _yargs$usage$example$.fallback,
     indexhtml = _yargs$usage$example$.indexhtml,
@@ -62,6 +67,7 @@ var path = require('path');
 (0, _index.createServer)({
 	basedir: path.isAbsolute(basedir) ? basedir : path.join(process.cwd(), basedir),
 	log: log,
+	showdotfile: showdotfile,
 	cors: cors,
 	fallback: fallback,
 	indexhtml: indexhtml,

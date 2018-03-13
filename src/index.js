@@ -12,6 +12,7 @@ const pfs = Promise.promisifyAll(fs)
 export function createServer({
 	basedir,
 	log,
+	showdotfile,
 	cors,
 	fallback,
 	indexhtml,
@@ -19,10 +20,7 @@ export function createServer({
 	upload,
 	auth
 }) {
-	const fallbackfile = path.join(
-		basedir,
-		decodeURIComponent(fallback)
-	)
+	const fallbackfile = path.join(basedir, decodeURIComponent(fallback))
 	const app = express()
 	app.set('view engine', 'pug')
 	app.set('views', path.join(__dirname, '../views'))
@@ -119,6 +117,9 @@ export function createServer({
 							name: filelist[i],
 							stat: statlist[i]
 						})
+					}
+					if (!showdotfile){
+						list = list.filter(f => !f.name.startsWith('.'))
 					}
 					res.render('directory', {
 						list,

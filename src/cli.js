@@ -5,6 +5,7 @@ const {
 	_: [basedir],
 	port,
 	log,
+	showdotfile,
 	cors,
 	fallback,
 	indexhtml,
@@ -25,6 +26,11 @@ const {
 		alias: 'l',
 		type: 'boolean',
 		describe: 'Enable logger'
+	})
+	.option('showdotfile',{
+		alias: 'd',
+		type: 'boolean',
+		describe: 'Show files starts with dot in directory page.'
 	})
 	.option('indexhtml', {
 		alias: 'i',
@@ -66,6 +72,7 @@ createServer({
 		? basedir
 		: path.join(process.cwd(), basedir),
 	log,
+	showdotfile,
 	cors,
 	fallback,
 	indexhtml,

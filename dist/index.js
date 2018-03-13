@@ -65,7 +65,7 @@ function createServer(_ref) {
 							stat = _context2.sent;
 
 							if (stat.isFile()) {
-								_context2.next = 25;
+								_context2.next = 26;
 								break;
 							}
 
@@ -75,12 +75,12 @@ function createServer(_ref) {
 							}
 
 							pfs.createReadStream(fallbackfile).pipe(res);
-							_context2.next = 23;
+							_context2.next = 24;
 							break;
 
 						case 10:
 							if (!stat.isDirectory()) {
-								_context2.next = 22;
+								_context2.next = 23;
 								break;
 							}
 
@@ -104,6 +104,11 @@ function createServer(_ref) {
 									stat: statlist[i]
 								});
 							}
+							if (!showdotfile) {
+								list = list.filter(function (f) {
+									return !f.name.startsWith('.');
+								});
+							}
 							res.render('directory', {
 								list: list,
 								path: _path2.default,
@@ -111,28 +116,28 @@ function createServer(_ref) {
 								upload: upload,
 								curpath: req.path
 							});
-							_context2.next = 23;
+							_context2.next = 24;
 							break;
-
-						case 22:
-							res.status(404).send('404 NOT FOUND');
 
 						case 23:
-							_context2.next = 28;
+							res.status(404).send('404 NOT FOUND');
+
+						case 24:
+							_context2.next = 29;
 							break;
 
-						case 25:
+						case 26:
 							//file found
 							res.set('Content-Type', _mime2.default.getType(req.path));
 							res.set('Content-Length', stat.size);
 							pfs.createReadStream(file).pipe(res);
 
-						case 28:
-							_context2.next = 33;
+						case 29:
+							_context2.next = 34;
 							break;
 
-						case 30:
-							_context2.prev = 30;
+						case 31:
+							_context2.prev = 31;
 							_context2.t0 = _context2['catch'](1);
 
 							if (fallback) pfs.createReadStream(fallbackfile).pipe(res);else if (_context2.t0.code === 'ENOENT')
@@ -140,12 +145,12 @@ function createServer(_ref) {
 								res.status(404).send('404 NOT FOUND'); //file not found
 							else res.status(500).send('500 SERVER ERROR');
 
-						case 33:
+						case 34:
 						case 'end':
 							return _context2.stop();
 					}
 				}
-			}, _callee2, this, [[1, 30]]);
+			}, _callee2, this, [[1, 31]]);
 		}));
 
 		return function showDirectory(_x4, _x5) {
@@ -155,6 +160,7 @@ function createServer(_ref) {
 
 	var basedir = _ref.basedir,
 	    log = _ref.log,
+	    showdotfile = _ref.showdotfile,
 	    cors = _ref.cors,
 	    fallback = _ref.fallback,
 	    indexhtml = _ref.indexhtml,
