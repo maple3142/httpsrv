@@ -1,4 +1,6 @@
 # httpsrv
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/maple3142/httpsrv.svg)](https://greenkeeper.io/)
 A simple http file server
 
 ## Usage
