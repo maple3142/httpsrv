@@ -6,6 +6,8 @@ import path from 'path'
 import url from 'url'
 import mime from 'mime'
 import mkdirp from 'mkdirp'
+import parseRange from 'range-parser'
+import { pbkdf2 } from 'crypto'
 const { Promise } = require('bluebird')
 global.Promise = Promise
 const pfs = Promise.promisifyAll(fs)
@@ -128,12 +130,32 @@ export function createServer({
 						upload,
 						curpath: req.path
 					})
-				} else res.status(404).send('404 NOT FOUND')
+				} else res.status(404).send('404 Not Found')
 			} else {
 				//file found
 				res.set('Content-Type', mime.getType(req.path))
-				res.set('Content-Length', stat.size)
-				pfs.createReadStream(file).pipe(res)
+				if (req.headers.range) {
+					const ranges = parseRange(stat.size, req.headers.range)
+					if (
+						typeof ranges === 'number' ||
+						ranges.length > 1 ||
+						ranges.type !== 'bytes'
+					) {
+						return res.status(416).send('416 Range Not Satisfiable')
+					}
+					const { start, end } = ranges[0]
+					res.set('Content-Length', end - start + 1)
+					res.set(
+						'Content-Range',
+						`bytes ${start}-${end}/${stat.size}`
+					)
+					res.status(206)
+					pfs.createReadStream(file, { start, end }).pipe(res)
+				} else {
+					res.set('Content-Length', stat.size)
+					res.set('Accept-Ranges', 'bytes')
+					pfs.createReadStream(file).pipe(res)
+				}
 			}
 		} catch (err) {
 			if (fallback) pfs.createReadStream(fallbackfile).pipe(res)

@@ -40,6 +40,12 @@ var _mkdirp = require('mkdirp');
 
 var _mkdirp2 = _interopRequireDefault(_mkdirp);
 
+var _rangeParser = require('range-parser');
+
+var _rangeParser2 = _interopRequireDefault(_rangeParser);
+
+var _crypto = require('crypto');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -55,7 +61,8 @@ function createServer(_ref) {
 
 	var showDirectory = function () {
 		var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(req, res) {
-			var file, stat, filelist, statlist, list, i;
+			var file, stat, filelist, statlist, list, i, ranges, _ranges$, start, end;
+
 			return regeneratorRuntime.wrap(function _callee2$(_context2) {
 				while (1) {
 					switch (_context2.prev = _context2.next) {
@@ -124,24 +131,51 @@ function createServer(_ref) {
 							break;
 
 						case 23:
-							res.status(404).send('404 NOT FOUND');
+							res.status(404).send('404 Not Found');
 
 						case 24:
-							_context2.next = 29;
+							_context2.next = 41;
 							break;
 
 						case 26:
 							//file found
 							res.set('Content-Type', _mime2.default.getType(req.path));
-							res.set('Content-Length', stat.size);
-							pfs.createReadStream(file).pipe(res);
 
-						case 29:
-							_context2.next = 34;
-							break;
+							if (!req.headers.range) {
+								_context2.next = 38;
+								break;
+							}
+
+							ranges = (0, _rangeParser2.default)(stat.size, req.headers.range);
+
+							if (!(typeof ranges === 'number' || ranges.length > 1 || ranges.type !== 'bytes')) {
+								_context2.next = 31;
+								break;
+							}
+
+							return _context2.abrupt('return', res.status(416).send('416 Range Not Satisfiable'));
 
 						case 31:
-							_context2.prev = 31;
+							_ranges$ = ranges[0], start = _ranges$.start, end = _ranges$.end;
+
+							res.set('Content-Length', end - start + 1);
+							res.set('Content-Range', 'bytes ' + start + '-' + end + '/' + stat.size);
+							res.status(206);
+							pfs.createReadStream(file, { start: start, end: end }).pipe(res);
+							_context2.next = 41;
+							break;
+
+						case 38:
+							res.set('Content-Length', stat.size);
+							res.set('Accept-Ranges', 'bytes');
+							pfs.createReadStream(file).pipe(res);
+
+						case 41:
+							_context2.next = 46;
+							break;
+
+						case 43:
+							_context2.prev = 43;
 							_context2.t0 = _context2['catch'](1);
 
 							if (fallback) pfs.createReadStream(fallbackfile).pipe(res);else if (_context2.t0.code === 'ENOENT')
@@ -150,12 +184,12 @@ function createServer(_ref) {
 								//file not found
 							else res.status(500).send('500 SERVER ERROR');
 
-						case 34:
+						case 46:
 						case 'end':
 							return _context2.stop();
 					}
 				}
-			}, _callee2, this, [[1, 31]]);
+			}, _callee2, this, [[1, 43]]);
 		}));
 
 		return function showDirectory(_x4, _x5) {
