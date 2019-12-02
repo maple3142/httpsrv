@@ -3,6 +3,7 @@ import multer from 'multer'
 import bauth from 'basic-auth'
 import fs from 'fs'
 import path from 'path'
+import url from 'url'
 import mime from 'mime'
 import mkdirp from 'mkdirp'
 const { Promise } = require('bluebird')
@@ -49,11 +50,10 @@ export function createServer({
 			const cdt = bauth(req)
 			if (cdt && cdt.name === username && cdt.pass === password) next()
 			else {
-				res
-					.set(
-						'WWW-Authenticate',
-						'Basic realm="httpsrv authentication"'
-					)
+				res.set(
+					'WWW-Authenticate',
+					'Basic realm="httpsrv authentication"'
+				)
 					.status(401)
 					.send('Access denied')
 			}
@@ -118,12 +118,12 @@ export function createServer({
 							stat: statlist[i]
 						})
 					}
-					if (!showdotfile){
+					if (!showdotfile) {
 						list = list.filter(f => !f.name.startsWith('.'))
 					}
 					res.render('directory', {
 						list,
-						path,
+						url,
 						instantclick,
 						upload,
 						curpath: req.path
@@ -139,7 +139,8 @@ export function createServer({
 			if (fallback) pfs.createReadStream(fallbackfile).pipe(res)
 			else if (err.code === 'ENOENT')
 				//if fallback exists
-				res.status(404).send('404 NOT FOUND') //file not found
+				res.status(404).send('404 NOT FOUND')
+			//file not found
 			else res.status(500).send('500 SERVER ERROR')
 		}
 	}

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 html
 	head
-		link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css")
+		link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css", rel="stylesheet")
 	body
 		.container
 			.row
@@ -13,7 +13,7 @@ html
 							.col-9
 								.custom-file
 									label(for='file').custom-file-label Select file
-									input(name='file',type='file',id='file').form-control-file
+									input(id='file',name='file',type='file').form-control-file
 							.col-3
 								input(name='upload',type='submit',value='upload').btn.btn-primary
 					.row
@@ -21,15 +21,15 @@ html
 							ul.list-group
 								if curpath!=='/'
 									li.list-group-item
-										a(href=path.join(curpath,'../')) ../
+										a(href='../') ../
 								each file in list.sort(f=>f.stat.isFile())
 									li.list-group-item
-										a(href=path.join(curpath,file.name),target=file.stat.isFile()?'_blank':'')
+										a(href='./'+encodeURIComponent(file.name)+(file.stat.isFile()?'':'/'),target=file.stat.isFile()?'_blank':'')
 											span #{file.name}
 											if file.stat.isDirectory()
 												small &#128193;
 												// &#128193; = 📁
 		if instantclick
-			script(src='https://cdnjs.cloudflare.com/ajax/libs/instantclick/3.0.1/instantclick.min.js',data-no-instant='')
+			script(data-no-instant='',src='https://cdnjs.cloudflare.com/ajax/libs/instantclick/3.0.1/instantclick.min.js')
 			script(data-no-instant='').
 				InstantClick.init()

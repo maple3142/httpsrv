@@ -28,6 +28,10 @@ var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
 
+var _url = require('url');
+
+var _url2 = _interopRequireDefault(_url);
+
 var _mime = require('mime');
 
 var _mime2 = _interopRequireDefault(_mime);
@@ -111,7 +115,7 @@ function createServer(_ref) {
 							}
 							res.render('directory', {
 								list: list,
-								path: _path2.default,
+								url: _url2.default,
 								instantclick: instantclick,
 								upload: upload,
 								curpath: req.path
@@ -142,7 +146,8 @@ function createServer(_ref) {
 
 							if (fallback) pfs.createReadStream(fallbackfile).pipe(res);else if (_context2.t0.code === 'ENOENT')
 								//if fallback exists
-								res.status(404).send('404 NOT FOUND'); //file not found
+								res.status(404).send('404 NOT FOUND');
+								//file not found
 							else res.status(500).send('500 SERVER ERROR');
 
 						case 34:
