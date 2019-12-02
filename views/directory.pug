@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 html
 	head
-		link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css", rel="stylesheet")
+		link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css", rel="stylesheet")
 	body
 		.container
 			.row
 				.offset-md-3
 				.col-md-6.col-xs-12
-					h1 #{curpath}
+					h1 #{decodeURIComponent(curpath)}
 					if upload
 						form(method='post',action=curpath,enctype='multipart/form-data').row.mb-2
 							.col-9
